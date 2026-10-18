@@ -9,7 +9,8 @@ gems at altars. First team to 1,000 tributed gems wins.
 | Version | vs official `starter-python` (9 maps × both sides) | Notes |
 | --- | --- | --- |
 | v1 | 14 / 18 | abilities, priority draft, item builds, safe banking |
-| v2 | **17 / 18** | removed recall-to-shop trips (big tempo gain) |
+| v2 | 17 / 18 | removed recall-to-shop trips (big tempo gain) |
+| v3 | **17 / 18** | fixed two error types seen on the live ladder; zero errors |
 
 ## Quick start
 

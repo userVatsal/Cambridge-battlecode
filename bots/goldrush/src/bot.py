@@ -23,7 +23,11 @@ def _threatened(me):
     """Any enemy champion or awake camp close enough to cancel a recall."""
     position = me.position()
     for enemy in cambc.vision.champions(cambc.Team.ENEMY):
-        if enemy.is_visible() and enemy.health() > 0 and position.chebyshev_distance(enemy.position()) <= 4:
+        try:
+            near = enemy.is_visible() and enemy.health() > 0 and position.chebyshev_distance(enemy.position()) <= 4
+        except cambc.Error:
+            near = False
+        if near:
             return True
     for camp in cambc.vision.camps():
         try:
@@ -35,6 +39,15 @@ def _threatened(me):
     return False
 
 
+def _recall(me):
+    # The engine raises 'Champion cannot act' if a channel is already running
+    # or the champion was stunned this turn; that must not end the turn.
+    try:
+        me.recall()
+    except cambc.Error:
+        pass
+
+
 class Bot:
     def __init__(self):
         self.state = ChampionState()
@@ -42,7 +55,14 @@ class Bot:
     def _farmable(self, camps):
         me = cambc.me()
         allow_monolith = farming._team_ready_for_monolith(me)
-        return [c for c in camps if allow_monolith or not c.is_monolith()]
+        farmable = []
+        for camp in camps:
+            try:
+                if allow_monolith or not camp.is_monolith():
+                    farmable.append(camp)
+            except cambc.Error:
+                continue
+        return farmable
 
     def play_turn(self):
         me = cambc.me()
@@ -65,7 +85,7 @@ class Bot:
             if _threatened(me):
                 navigation.move_home()
             else:
-                me.recall()
+                _recall(me)
             return
 
         # Enemy champions in range take priority: kills steal their gems.
@@ -81,7 +101,7 @@ class Bot:
         # Nothing to bank and a full purse: recall to buy power.
         if (me.gold_count() >= config.SHOP_TRIP_GOLD and not navigation.at_spawn()
                 and not _threatened(me)):
-            me.recall()
+            _recall(me)
             return
 
         camps = self._farmable(combat.camps_in_attack_range())

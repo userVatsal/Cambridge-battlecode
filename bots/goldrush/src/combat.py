@@ -6,8 +6,20 @@ import config
 Team = cambc.Team
 
 
+def _health(unit):
+    """Health of a unit, or 0 if it has died or left vision since we listed it.
+
+    A camp killed earlier this turn still sits in our lists, and reading its
+    health raises 'Unit is not in vision' — which used to abort the whole turn.
+    """
+    try:
+        return unit.health() if unit.is_visible() else 0
+    except cambc.Error:
+        return 0
+
+
 def _alive_visible(units):
-    return [u for u in units if u.is_visible() and u.health() > 0]
+    return [u for u in units if _health(u) > 0]
 
 
 def _in_mask(units, mask):
@@ -16,7 +28,8 @@ def _in_mask(units, mask):
 
 def pick_target(units):
     """Focus fire: the lowest-health unit dies first and stops dealing damage."""
-    return min(units, key=lambda u: u.health()) if units else None
+    units = _alive_visible(units)
+    return min(units, key=_health) if units else None
 
 
 def enemies_in_attack_range():
@@ -115,7 +128,7 @@ def cast_ally_heal():
         except (cambc.Error, ValueError):
             continue
         hurt = [a for a in _in_mask(_alive_visible(cambc.vision.champions(Team.ALLY)), reach)
-                if a != me and a.health() < a.max_health() * config.HEAL_ALLY_HEALTH]
+                if a != me and _health(a) < a.max_health() * config.HEAL_ALLY_HEALTH]
         target = pick_target(hurt)
         if target is not None and _try_cast(ability, target):
             return True

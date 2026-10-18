@@ -5,7 +5,7 @@ Draft = cambc.ChampionDraft
 Champ = cambc.ChampionType
 Item = cambc.ItemType
 
-VERSION = b"goldrush-v2"
+VERSION = b"goldrush-v3"
 
 # Picked top-down, skipping anything we already own. Tanky splash/AoE farmers
 # first: the game is a farming race, and dead champions drop their gems.

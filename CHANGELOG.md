@@ -2,6 +2,15 @@
 
 Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games).
 
+## v3 — crash-free (18 Oct 2026)
+
+- First ladder match group (5 games) showed 169 caught errors in our logs, each one ending
+  that champion's turn early: 162 × "Unit is not in vision" (reading the health of a camp
+  killed earlier the same turn) and 7 × "Champion cannot act" (recall while unable to act).
+- Health reads and recalls are now error-safe. Local runs: 0 errors (was 25 on two maps).
+- vs starter: **17 / 18** (unchanged). vs v2: 8 / 18 — a draw; most maps are exact mirrors
+  decided by which side moves second.
+
 ## Experiments (rejected)
 
 - Tank + healer core (draft Ryth, Willow, Tavi first): **6 / 18** head-to-head vs v2.

@@ -1,0 +1,23 @@
+[project]
+name = "hidden-gold-clusters-battlecode"
+version = "2.0.0"
+description = "Team Hidden Gold Clusters' bots for Cambridge Battlecode 2026 Autumn"
+requires-python = ">=3.10"
+
+[project.optional-dependencies]
+dev = ["cambc", "pytest>=8", "ruff>=0.6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 110
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501"]
+
+[tool.ruff.lint.isort]
+known-third-party = ["cambc"]
+known-first-party = ["bot", "combat", "config", "draft", "economy", "farming", "navigation", "rng"]

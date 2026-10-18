@@ -4,6 +4,9 @@ Results are `make eval` against the official `starter-python` (9 maps × 2 sides
 
 ## Experiments (rejected)
 
+- Tank + healer core (draft Ryth, Willow, Tavi first): **6 / 18** head-to-head vs v2.
+- Fuel check: worst turn on collision still had ~1.26M of the 2.5M Python budget left, so an
+  emergency low-fuel fallback is not needed yet.
 - Bank later (`BANK_GEMS=50`, `BANK_IF_ALTAR_WITHIN=5`): **7 / 18** head-to-head vs v2. Kept 30 / 8.
 
 ## v2 — Sprint 1 submission (18 Oct 2026)

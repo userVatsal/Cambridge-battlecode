@@ -5,7 +5,7 @@ Draft = cambc.ChampionDraft
 Champ = cambc.ChampionType
 Item = cambc.ItemType
 
-VERSION = b"goldrush-v3"
+VERSION = b"goldrush-v4"
 
 # Picked top-down, skipping anything we already own. Tanky splash/AoE farmers
 # first: the game is a farming race, and dead champions drop their gems.
@@ -68,3 +68,14 @@ SHOP_TRIP_GOLD = 10**9
 MONOLITH_GEMS = 150
 MONOLITH_MIN_MAX_HEALTH = 3000
 MONOLITH_MIN_ROUND = 700
+
+# Visible group whose state cannot be read: try it again after this many rounds.
+UNKNOWN_GROUP_COOLDOWN = 20
+
+# Anti-loop: if a champion keeps moving but visits at most STUCK_MAX_TILES
+# distinct tiles over STUCK_WINDOW turns, nearby groups are skipped for
+# STUCK_BLOCK_ROUNDS so it commits to a different target.
+STUCK_WINDOW = 12
+STUCK_MAX_TILES = 3
+STUCK_BLOCK_ROUNDS = 40
+STUCK_BLOCK_RADIUS = 10

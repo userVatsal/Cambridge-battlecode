@@ -10,7 +10,8 @@ gems at altars. First team to 1,000 tributed gems wins.
 | --- | --- | --- |
 | v1 | 14 / 18 | abilities, priority draft, item builds, safe banking |
 | v2 | 17 / 18 | removed recall-to-shop trips (big tempo gain) |
-| v3 | **17 / 18** | fixed two error types seen on the live ladder; zero errors |
+| v3 | 17 / 18 | fixed two error types seen on the live ladder; zero errors |
+| v4 | **17 / 18** | fixed champions getting stuck oscillating on ladder maps |
 
 ## Quick start
 
@@ -43,6 +44,7 @@ bots/goldrush/src/      the bot that gets submitted
   navigation.py         shortest-path movement on the engine's native bitboards
   rng.py                deterministic randomness (engine randomness is always zero)
 tools/run_matches.py    batch evaluator: all maps, both sides, JSON results
+tools/analyse_replays.py  summarise decoded ladder replays (see docs/MATCH_LOG.md)
 tools/snapshot.py       freeze the current bot as goldrush-vN for regression testing
 tests/                  unit tests for pure logic (run without the engine)
 docs/                   problem statement, strategy, development workflow
@@ -58,6 +60,8 @@ docs/                   problem statement, strategy, development workflow
 2. Change **one** thing (usually a number in `config.py`).
 3. `make eval OPPONENT=goldrush-v<n>` — keep the change only if it wins.
 4. `make eval` against the starter to make sure nothing regressed, then commit and bundle.
+
+Every ladder match group is analysed in [docs/MATCH_LOG.md](docs/MATCH_LOG.md).
 
 See [docs/PROBLEM_AND_SOLUTIONS.md](docs/PROBLEM_AND_SOLUTIONS.md),
 [docs/STRATEGY.md](docs/STRATEGY.md) and [CHANGELOG.md](CHANGELOG.md).

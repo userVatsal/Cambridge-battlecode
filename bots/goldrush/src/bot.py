@@ -12,6 +12,18 @@ class ChampionState:
     def __init__(self):
         self.build_index = 0
         self.camp_layout = None
+        self.unavailable_until = {}
+        self.recent_moves = []  # positions after each turn we chose to walk
+
+
+def _record_move(state, me):
+    state.recent_moves.append(me.position())
+    del state.recent_moves[:-config.STUCK_WINDOW]
+
+
+def _is_looping(state):
+    moves = state.recent_moves
+    return len(moves) >= config.STUCK_WINDOW and len(set(moves)) <= config.STUCK_MAX_TILES
 
 
 def _is_busy(me):
@@ -110,8 +122,12 @@ class Bot:
             # Melee champions may still walk after attacking; ranged may not.
             return
 
+        if _is_looping(self.state):
+            farming.block_nearby_groups(self.state, config.STUCK_BLOCK_ROUNDS)
+            self.state.recent_moves.clear()
         moved = farming.advance_to_camps(self.state)
         if moved:
+            _record_move(self.state, me)
             camps = self._farmable(combat.camps_in_attack_range())
             if camps:
                 combat.fight(camps)

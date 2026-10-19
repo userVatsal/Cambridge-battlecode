@@ -55,6 +55,7 @@ bots/goldrush-vN/       frozen Python snapshots (regression opponents)
 bots/goldrush-cpp-vN/   frozen C++ snapshots (regression opponents)
 tools/run_matches.py    batch evaluator: all maps, both sides, JSON results, log checks
 tools/analyse_replays.py  summarise decoded ladder replays (see docs/MATCH_LOG.md)
+tools/fetch_matches.py  download top teams' ladder matches as JSON (`make scout`)
 tools/snapshot.py       freeze a bot as <bot>-vN
 tests/                  unit tests for the Python bot's pure logic (no engine needed)
 docs/                   problem statement, strategy, ladder match log

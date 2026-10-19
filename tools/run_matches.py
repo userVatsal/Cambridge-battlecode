@@ -85,6 +85,13 @@ def main() -> int:
     args = parser.parse_args()
 
     maps = args.maps or all_maps()
+    if not maps:
+        print("No maps in maps/. Run `cambc login` (Battlecode account), then `cambc maps pull`.")
+        return 1
+    if " " in str(ROOT):
+        print(f"The project path contains a space ({ROOT}); cambc run-batch cannot handle that. "
+              "Rename the folder, e.g. to cambridge-battlecode.")
+        return 1
     for name in {args.bot, args.opponent}:
         build(name)
     results = run(args.bot, args.opponent, maps, args.jobs)

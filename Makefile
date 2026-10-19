@@ -5,6 +5,8 @@ BOT      ?= goldrush-cpp
 OPPONENT ?= starter-python
 MAP      ?= expanse
 JOBS     ?= 2
+# macOS has python3 but no plain python unless a virtual environment is active.
+PYTHON   ?= $(shell command -v python >/dev/null 2>&1 && echo python || echo python3)
 
 .PHONY: help setup build match eval snapshot bundle submit test lint view
 
@@ -20,7 +22,7 @@ help:
 	@echo "make view                  open the most recent replay in the visualiser"
 
 setup:
-	python -m pip install --upgrade cambc
+	$(PYTHON) -m pip install --upgrade cambc
 	cambc init --yes .
 	cambc maps pull
 
@@ -31,11 +33,11 @@ match: build
 	cambc run bots/$(BOT) bots/$(OPPONENT) --map $(MAP)
 
 eval:
-	python tools/run_matches.py --bot $(BOT) --opponent $(OPPONENT) --jobs $(JOBS)
+	$(PYTHON) tools/run_matches.py --bot $(BOT) --opponent $(OPPONENT) --jobs $(JOBS)
 
 snapshot:
 	@test -n "$(V)" || (echo "usage: make snapshot V=<number>" && exit 1)
-	python tools/snapshot.py $(V) $(BOT)
+	$(PYTHON) tools/snapshot.py $(V) $(BOT)
 
 bundle:
 	mkdir -p dist
@@ -45,10 +47,10 @@ submit:
 	cambc submit bots/$(BOT)
 
 test:
-	python -m pytest -q
+	$(PYTHON) -m pytest -q
 
 lint:
-	python -m ruff check bots/goldrush tools tests
+	$(PYTHON) -m ruff check bots/goldrush tools tests
 
 view:
 	cambc view

@@ -24,6 +24,7 @@ from __future__ import annotations
 import argparse
 import collections
 import json
+import re
 import subprocess
 import sys
 import time
@@ -31,15 +32,30 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data"
-PAUSE_SECONDS = 0.3
+PAUSE_SECONDS = 1.0
+MAX_RETRIES = 8
 CURSOR_KEYS = ("cursor", "next", "nextCursor", "next_cursor")
 
 
+def run_cambc(args: list[str]) -> subprocess.CompletedProcess:
+    """Run cambc, waiting and retrying when the platform says it is busy (HTTP 429)."""
+    for attempt in range(MAX_RETRIES):
+        result = subprocess.run(["cambc", *args], capture_output=True, text=True)
+        time.sleep(PAUSE_SECONDS)
+        message = result.stderr + result.stdout
+        if result.returncode == 0 or "429" not in message:
+            return result
+        match = re.search(r"retry after (\d+)", message)
+        wait = int(match.group(1)) + 1 if match else 2 ** attempt
+        print(f"  platform busy, waiting {wait}s (attempt {attempt + 1}/{MAX_RETRIES})")
+        time.sleep(wait)
+    return result
+
+
 def cambc_json(*args: str):
-    result = subprocess.run(["cambc", *args, "--json"], capture_output=True, text=True)
+    result = run_cambc([*args, "--json"])
     if result.returncode != 0:
         raise RuntimeError(f"cambc {' '.join(args)} failed: {result.stderr.strip() or result.stdout.strip()}")
-    time.sleep(PAUSE_SECONDS)
     return json.loads(result.stdout)
 
 
@@ -81,7 +97,10 @@ def top_teams(count: int) -> list[dict]:
     return teams[:count]
 
 
-def team_matches(team_id: str) -> list[dict]:
+def team_matches(team_id: str, refresh: bool) -> list[dict]:
+    cached = DATA / "teams" / f"{team_id}.json"
+    if cached.exists() and not refresh:
+        return json.loads(cached.read_text())
     matches, cursor = [], None
     while True:
         args = ["matches", "list", "--team", team_id, "--limit", "100"]
@@ -101,9 +120,7 @@ def download_summary(match_id: str) -> bool:
     out = DATA / "summaries" / f"{match_id}.json"
     if out.exists():
         return False
-    result = subprocess.run(["cambc", "matches", "summary", match_id, "--json", "-o", str(out)],
-                            capture_output=True, text=True)
-    time.sleep(PAUSE_SECONDS)
+    result = run_cambc(["matches", "summary", match_id, "--json", "-o", str(out)])
     if result.returncode != 0:
         print(f"  summary {match_id} failed: {result.stderr.strip()[:200]}")
         return False
@@ -113,8 +130,7 @@ def download_summary(match_id: str) -> bool:
 def download_replay(match_id: str) -> None:
     out = DATA / "replays" / f"{match_id}.zip"
     if not out.exists():
-        subprocess.run(["cambc", "matches", "download", match_id, "-o", str(out)], capture_output=True)
-        time.sleep(PAUSE_SECONDS)
+        run_cambc(["matches", "download", match_id, "-o", str(out)])
 
 
 def index_row(match_id: str, listing: dict) -> dict | None:
@@ -151,7 +167,7 @@ def cmd_fetch(args) -> int:
     teams = [{"id": args.team, "name": args.team}] if args.team else top_teams(args.top)
     listings: dict[str, dict] = {}
     for n, team in enumerate(teams, 1):
-        matches = team_matches(team["id"])
+        matches = team_matches(team["id"], args.refresh)
         print(f"[{n}/{len(teams)}] {team['name']}: {len(matches)} matches")
         for m in matches:
             match_id = pick(m, "id", "matchId", "match_id")
@@ -201,6 +217,7 @@ def main() -> int:
     who.add_argument("--top", type=int, default=12, help="number of ladder teams (default 12)")
     who.add_argument("--team", help="a single team id")
     fetch.add_argument("--replays", action="store_true", help="also download replay bundles")
+    fetch.add_argument("--refresh", action="store_true", help="re-download team match lists already saved")
     sub.add_parser("report")
     args = parser.parse_args()
     try:

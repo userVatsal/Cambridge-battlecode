@@ -5,7 +5,7 @@ Draft = cambc.ChampionDraft
 Champ = cambc.ChampionType
 Item = cambc.ItemType
 
-VERSION = b"goldrush-v8"
+VERSION = b"goldrush-v9"
 
 # Picked top-down, skipping anything we already own. The most common winning
 # set across 49 ladder losses to the top teams: Cassi+Issac (one pick, two
@@ -60,11 +60,10 @@ BANK_GEMS = 30
 BANK_IF_ALTAR_WITHIN = 8
 BANK_HEALTH = 0.6
 
-# Dedicated recall-to-shop trips. Testing showed they cost more farming time
-# than the items repay (collision: lost at 1464 rounds with trips, won at 668
-# without), so they are disabled: champions shop when low-health recalls or
-# deaths bring them home anyway.
-SHOP_TRIP_GOLD = 10**9
+# Recall to shop once this much gold is unspent. Winners in 3,160 ladder games
+# spend ~90% of the gold they earn. Trips lost before v6 only because of the
+# spawn-healing bug; with it fixed, 150 gold beats never-shop 12/18.
+SHOP_TRIP_GOLD = 150
 
 # Camp groups worth at least this many gems are monoliths (200 gems, 20k HP,
 # 200 strength) and only attempted once the team is strong.

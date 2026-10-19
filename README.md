@@ -19,7 +19,8 @@ decisions, file for file.
 | v5 | C++ | 17 / 18 | port of v4; 9 / 18 head-to-head vs v4 (equal); 0 out-of-fuel turns |
 | v6 | C++ | 18 / 18 | stay on spawn until healed (bug found vs the top UK team); 14 / 18 vs v5 |
 | v7 | C++ | 18 / 18 | Cassi+Issac-first draft copied from the top UK team; 10 / 18 vs v6 |
-| v8 | **C++** | **18 / 18** | winners' draft (Cassi+Issac, Stellar, Ren, Tavi, Ryth) from 50 top-team games; 11 / 18 vs v7 |
+| v8 | C++ | 18 / 18 | winners' draft (Cassi+Issac, Stellar, Ren, Tavi, Ryth) from 50 top-team games; 11 / 18 vs v7 |
+| v9 | **C++** | **18 / 18** | shop at 150 unspent gold (winners spend ~90% of gold, from 3,160 top-team games); 12 / 18 vs v8 |
 
 ## Quick start
 
@@ -56,6 +57,7 @@ bots/goldrush-cpp-vN/   frozen C++ snapshots (regression opponents)
 tools/run_matches.py    batch evaluator: all maps, both sides, JSON results, log checks
 tools/analyse_replays.py  summarise decoded ladder replays (see docs/MATCH_LOG.md)
 tools/fetch_matches.py  download top teams' ladder matches as JSON (`make scout`)
+tools/analyse_scout.py  team strength, draft lift and winners' spending from that data
 tools/snapshot.py       freeze a bot as <bot>-vN
 tests/                  unit tests for the Python bot's pure logic (no engine needed)
 docs/                   problem statement, strategy, ladder match log

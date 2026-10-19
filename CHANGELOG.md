@@ -3,6 +3,18 @@
 Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games)
 unless stated otherwise.
 
+## v9 — shop trips are back (19 Oct 2026)
+
+- 3,160 ladder games of the top teams (`make scout`, analysed with `tools/analyse_scout.py`).
+  Per-champion medians, winners vs losers: gold earned 840 vs 460, **spent 750 vs 430**,
+  gems tributed 178 vs 66, deaths 0 vs 1. Champion choice moves win rate by only about ±0.5
+  points once team strength is accounted for, so the draft matters little; spending gold does.
+- v2 dropped recall-to-shop trips, but they only lost because of the spawn-healing bug fixed in
+  v6. Now champions recall to shop once 150 gold is unspent. **12 / 18 vs v8**, **18 / 18** vs
+  starter, `errors=0 fuel_warnings=0`. Both bots. Frozen as `bots/goldrush-cpp-v9`.
+- Rejected: copy winners' item build (Power main stat, then Durability) — **7 / 18** vs v8.
+- Rejected: winners' stat priorities only, same items — **9 / 18** vs v8.
+
 ## v8 — winners' draft (19 Oct 2026)
 
 - 50 ladder games of v5 vs 10 top teams (1 win): the most common winning draft was Cassi+Issac,

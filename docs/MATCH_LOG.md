@@ -7,6 +7,38 @@ How to regenerate the numbers: see [Analysing ladder replays](#analysing-ladder-
 
 ---
 
+## 19 Oct 2026, 20:00 — scouting data: 3,160 top-team games → ships **v9**
+
+Downloaded with `make scout` (12 top ladder teams, up to 300 matches each), analysed with
+`python tools/analyse_scout.py data`.
+
+| Team | Win rate |
+| --- | --- |
+| Intercontinental Fish | 92% |
+| Univardisty of Shingtonwash | 89% |
+| Nyx | 82% |
+
+| Per champion (median) | Winners | Losers |
+| --- | --- | --- |
+| Deaths | 0 | 1 |
+| Kills | 1 | 0 |
+| Gold earned | 840 | 460 |
+| Gold spent | 750 | 430 |
+| Gems collected | 196 | 102 |
+| Gems tributed | 178 | 66 |
+
+What it means:
+
+- **Draft barely matters.** Once each team's own win rate is subtracted, every champion is
+  within about ±0.5 points; Stellar as first pick is the best at +1.1. No draft change.
+- **Winners spend their gold** (about 90% of it). We had stopped shopping in v2, so our gold sat
+  unused. v9 recalls to shop at 150 unspent gold: 12 / 18 vs v8, 18 / 18 vs starter.
+- **Winners don't die** (median 0 deaths) and tribute almost every gem they collect.
+- Top teams' item build (Power main stat, then Durability, then Power; Tavi opens Monster Focus)
+  did not help our bot: 7 / 18 vs v8. Stat priorities alone: 9 / 18. Both rejected.
+
+---
+
 ## 19 Oct 2026, 14:30 — v5 vs 10 top teams (10 groups, 50 games) → ships **v8**
 
 We are the losing side in 49 of 50 (old draft Varg, Ryth, Stellar, Marcella, Tavi; all played

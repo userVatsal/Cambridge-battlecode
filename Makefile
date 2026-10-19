@@ -60,3 +60,4 @@ TOP ?= 12
 scout:
 	$(PYTHON) tools/fetch_matches.py fetch --top $(TOP)
 	$(PYTHON) tools/fetch_matches.py report
+	$(PYTHON) tools/analyse_scout.py data

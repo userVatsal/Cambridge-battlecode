@@ -10,7 +10,7 @@
 
 namespace config {
 
-inline constexpr std::string_view version = "goldrush-cpp-v8";
+inline constexpr std::string_view version = "goldrush-cpp-v9";
 
 // Picked top-down, skipping anything we already own. The most common winning
 // set across 49 ladder losses to the top teams: Cassi+Issac (one pick, two
@@ -47,10 +47,10 @@ inline constexpr std::uint32_t bank_gems = 30;
 inline constexpr int bank_if_altar_within = 8;
 inline constexpr float bank_health = 0.6f;
 
-// Dedicated recall-to-shop trips cost more farming time than the items repay
-// (collision: lost at 1464 rounds with trips, won at 668 without), so they are
-// disabled: champions shop when low-health recalls or deaths bring them home.
-inline constexpr std::uint32_t shop_trip_gold = std::numeric_limits<std::uint32_t>::max();
+// Recall to shop once this much gold is unspent. Winners in 3,160 ladder games
+// spend ~90% of the gold they earn. Trips lost before v6 only because of the
+// spawn-healing bug; with it fixed, 150 gold beats never-shop 12/18.
+inline constexpr std::uint32_t shop_trip_gold = 150;
 
 // Camp groups worth at least this many gems are monoliths (200 gems, 20k HP,
 // 200 strength) and are only attempted once the team is strong.

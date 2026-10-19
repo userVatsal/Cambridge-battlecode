@@ -16,7 +16,9 @@ decisions, file for file.
 | v2 | Python | 17 / 18 | removed recall-to-shop trips (big tempo gain) |
 | v3 | Python | 17 / 18 | fixed two error types seen on the live ladder; zero errors |
 | v4 | Python | 17 / 18 | fixed champions getting stuck oscillating on ladder maps |
-| v5 | **C++** | **17 / 18** | port of v4; 9 / 18 head-to-head vs v4 (equal); 0 out-of-fuel turns |
+| v5 | C++ | 17 / 18 | port of v4; 9 / 18 head-to-head vs v4 (equal); 0 out-of-fuel turns |
+| v6 | C++ | 18 / 18 | stay on spawn until healed (bug found vs the top UK team); 14 / 18 vs v5 |
+| v7 | **C++** | **18 / 18** | Cassi+Issac-first draft copied from the top UK team; 10 / 18 vs v6 |
 
 ## Quick start
 

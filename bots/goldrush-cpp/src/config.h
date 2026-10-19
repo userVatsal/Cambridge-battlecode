@@ -10,21 +10,22 @@
 
 namespace config {
 
-inline constexpr std::string_view version = "goldrush-cpp-v5";
+inline constexpr std::string_view version = "goldrush-cpp-v7";
 
-// Picked top-down, skipping anything we already own. Tanky splash/AoE farmers
-// first: the game is a farming race, and dead champions drop their gems.
+// Picked top-down, skipping anything we already own. Cassi+Issac first: one
+// pick gives two bodies (6 champions from 5 picks), as the top UK team does.
+// Then splash/AoE farmers. 10/18 vs v6, 18/18 vs starter.
 inline constexpr std::array draft_priority{
+    cambc::champion_draft::cassi_and_issac,
     cambc::champion_draft::varg,
-    cambc::champion_draft::ryth,
     cambc::champion_draft::stellar,
-    cambc::champion_draft::marcella,
+    cambc::champion_draft::ren,
     cambc::champion_draft::tavi,
+    cambc::champion_draft::ryth,
+    cambc::champion_draft::marcella,
     cambc::champion_draft::vesper_vale,
     cambc::champion_draft::vendetta,
-    cambc::champion_draft::ren,
     cambc::champion_draft::prism,
-    cambc::champion_draft::cassi_and_issac,
     cambc::champion_draft::willow,
 };
 
@@ -37,6 +38,8 @@ const std::vector<cambc::item_type>& build_for(cambc::champion_type champion);
 inline constexpr float recall_health = 0.35f;
 inline constexpr float shield_health = 0.85f;
 inline constexpr float heal_ally_health = 0.65f;
+// Stay on spawn (healing) until at least this much health.
+inline constexpr float leave_spawn_health = 0.9f;
 
 // Gem banking: a camp kill destroys carried gems, so bank early.
 inline constexpr std::uint32_t bank_gems = 30;

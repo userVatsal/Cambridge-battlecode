@@ -3,6 +3,18 @@
 Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games)
 unless stated otherwise.
 
+## v7 — Cassi+Issac draft (19 Oct 2026)
+
+- Draft order now Cassi+Issac, Varg, Stellar, Ren, Tavi, … (copied from the top UK team: one
+  pick, two bodies). **10 / 18 vs v6** (marginal), **18 / 18** vs starter. Both bots.
+
+## v6 — stay on spawn until healed (19 Oct 2026)
+
+- Found in 5 losses to the top UK team: hurt champions recalled, walked off spawn in the arrival
+  turn (spawn heals only at turn end), and re-recalled every 6 rounds forever. Now they stay on
+  spawn until ≥ 90% health. Both bots. Frozen as `bots/goldrush-cpp-v6`.
+- **14 / 18 vs v5**, **18 / 18 vs starter** (first perfect score). `errors=0 fuel_warnings=0`.
+
 ## v5 — C++ port (19 Oct 2026)
 
 - `bots/goldrush-cpp`: file-for-file C++ port of Python v4. Python `bots/goldrush` kept as
@@ -41,6 +53,9 @@ unless stated otherwise.
   decided by which side moves second.
 
 ## Experiments (rejected)
+
+- Bank later (`bank_gems=60`, `bank_if_altar_within=4`), retested after the v6 heal fix:
+  **9 / 18** vs v6.
 
 - Retreat when outnumbered below 70% health: **9 / 18** vs v4 — no evidence it helps; revisit with ladder maps.
 - Tank + healer core (draft Ryth, Willow, Tavi first): **6 / 18** head-to-head vs v2.

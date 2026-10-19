@@ -5,21 +5,22 @@ Draft = cambc.ChampionDraft
 Champ = cambc.ChampionType
 Item = cambc.ItemType
 
-VERSION = b"goldrush-v4"
+VERSION = b"goldrush-v7"
 
-# Picked top-down, skipping anything we already own. Tanky splash/AoE farmers
-# first: the game is a farming race, and dead champions drop their gems.
+# Picked top-down, skipping anything we already own. Cassi+Issac first: one
+# pick gives two bodies (6 champions from 5 picks), as the top UK team does.
+# Then splash/AoE farmers.
 DRAFT_PRIORITY = (
+    Draft.CASSI_AND_ISSAC,
     Draft.VARG,
-    Draft.RYTH,
     Draft.STELLAR,
-    Draft.MARCELLA,
+    Draft.REN,
     Draft.TAVI,
+    Draft.RYTH,
+    Draft.MARCELLA,
     Draft.VESPER_VALE,
     Draft.VENDETTA,
-    Draft.REN,
     Draft.PRISM,
-    Draft.CASSI_AND_ISSAC,
     Draft.WILLOW,
 )
 
@@ -51,6 +52,8 @@ BUILDS = {
 RECALL_HEALTH = 0.35
 SHIELD_HEALTH = 0.85
 HEAL_ALLY_HEALTH = 0.65
+# Stay on spawn (healing) until at least this much health.
+LEAVE_SPAWN_HEALTH = 0.9
 
 # Gem banking: a camp kill destroys carried gems, so bank early.
 BANK_GEMS = 30

@@ -79,6 +79,11 @@ void Bot::play_turn() {
 
     if (navigation::at_spawn()) economy::buy_items(state_);
 
+    // Spawn heals only at the end of a turn spent on it. Walking off in the
+    // arrival turn left hurt champions unhealed one tile outside spawn, so they
+    // recalled again every 6 rounds for the rest of the match (ladder replays).
+    if (navigation::at_spawn() && me.health() < me.max_health() * config::leave_spawn_health) return;
+
     combat::support();
 
     // Low health away from spawn: step out of danger, then recall

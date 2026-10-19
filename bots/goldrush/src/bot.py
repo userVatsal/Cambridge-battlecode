@@ -89,6 +89,12 @@ class Bot:
         if navigation.at_spawn():
             economy.buy_items(self.state)
 
+        # Spawn heals only at the end of a turn spent on it. Walking off in the
+        # arrival turn left hurt champions unhealed one tile outside spawn, so they
+        # recalled again every 6 rounds for the rest of the match (ladder replays).
+        if navigation.at_spawn() and me.health() < me.max_health() * config.LEAVE_SPAWN_HEALTH:
+            return
+
         combat.support()
 
         # Low health away from spawn: step out of danger, then recall

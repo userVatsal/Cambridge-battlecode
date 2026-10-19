@@ -7,6 +7,56 @@ How to regenerate the numbers: see [Analysing ladder replays](#analysing-ladder-
 
 ---
 
+## 19 Oct 2026, 14:15 — vs the top UK team (group `2f59cacd`, 5 games), bot v5 (C++) → ships **v7**
+
+### Scoreboard: lost 0–5
+
+We are Team A in all five (our draft; our C++ bot printed no errors and no fuel warnings).
+Their team name is not in the files; they draft **Cassi+Issac, Varg, Stellar, Ren, Tavi**.
+
+| Game | Map size (camps) | Rounds | Gems us–them | Kills us–them | Gems at round 200 |
+| --- | --- | --- | --- | --- | --- |
+| 1 | 100×97 (38) | 581 | 606–1034 | 0–0 | 178–178 |
+| 2 | 32×41 (24) | 528 | 330–1058 | 0–3 | 66–300 |
+| 3 | 50×48 (22) | 2000 | 0–0 (lost tiebreak) | 1–68 | 0–0 |
+| 4 | 71×71 (42) | 387 | 392–1020 | 1–3 | 102–312 |
+| 5 | 41×28 (20) | 364 | 94–1014 | 0–6 | 58–306 |
+
+### What they do differently (measured from the replays)
+
+| | Us (v5) | Top team |
+| --- | --- | --- |
+| Champions on the map | 5 | **6** — Cassi+Issac is one pick, two bodies |
+| Average health, first 400 rounds | 48–75% | 75–87% |
+| Gems carried per hand-in (median) | 22–36 | 44–89 |
+| Team spread | similar | similar |
+
+### Why we lost — the big one was a bug
+
+**Recall loop at spawn.** A hurt champion recalls, lands on a spawn tile, buys items and then
+walks off **in the same turn**. Spawn only heals at the end of a turn spent on it, so it ends
+the turn unhealed one tile outside spawn, is still below 35% health, and recalls again — every
+6 rounds, forever. Game 5: our Stellar sat at 210/750 health on tile (1,13) from round 31 to the
+end, and Marcella at 120/1200 beside it — two of five champions out of the game. Game 3: Ryth
+made 212 recalls. Game 1: Varg 83. The same loop showed up locally once we looked for it.
+
+The 22-camp map (game 3) is still a bloodbath (68 deaths); that needs fight/retreat work.
+
+### What we changed
+
+| Version | Change | Result |
+| --- | --- | --- |
+| v6 | Stay on spawn until ≥ 90% health (`leave_spawn_health`) | **14 / 18 vs v5**, **18 / 18 vs starter** (first perfect score) |
+| v7 | Draft Cassi+Issac first, then Varg, Stellar, Ren, Tavi (copied from the top team) | 10 / 18 vs v6 (marginal), 18 / 18 vs starter |
+| rejected | Bank later (60 gems, altar within 4) to copy their bigger hand-ins | 9 / 18 vs v6 |
+
+### Next
+
+1. Get their *score* on the 22-camp map: fight/retreat logic so we stop feeding 68 kills.
+2. Watch the next ladder games for whether v7's draft actually helps against real teams.
+
+---
+
 ## 18 Oct 2026, 22:30 — 5 match groups (25 games), bot v2/v3 → ships **v4**
 
 ### Scoreboard

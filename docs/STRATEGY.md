@@ -6,7 +6,8 @@ Every champion, every turn, takes the first branch that applies:
 
 1. **Dead** → shop (dead champions still get a turn).
 2. **Channelling** (recall, tribute, teleport) → do nothing; acting would cancel it.
-3. **On spawn** → buy the next items in the build order.
+3. **On spawn** → buy the next items in the build order; if below 90% health, stay put this
+   turn (spawn heals only at the end of a turn spent on it).
 4. **Support** → heal a hurt ally / shield self if those abilities are ready.
 5. **Below 35% health** → walk home if anything is threatening, otherwise recall.
 6. **Enemy champion in attack range** → fight it (kills steal their carried gems).

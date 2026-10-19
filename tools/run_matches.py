@@ -2,8 +2,8 @@
 """Evaluate one bot against another on every map, playing both sides.
 
 Usage:
-    python tools/run_matches.py                       # goldrush vs starter-python
-    python tools/run_matches.py --bot goldrush --opponent goldrush-v0 --jobs 2
+    python tools/run_matches.py                       # goldrush-cpp vs starter-python
+    python tools/run_matches.py --opponent goldrush   # C++ bot vs the Python reference
     python tools/run_matches.py --maps expanse lanes
 
 Prints a per-map table and an overall win rate, and writes a JSON summary to
@@ -16,6 +16,7 @@ import json
 import subprocess
 import sys
 import tempfile
+import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -37,7 +38,8 @@ def run(bot: str, opponent: str, maps: list[str], jobs: int) -> list[dict]:
             stats = work / f"{name}-{side}.json"
             replay = work / f"{name}-{side}.repl26a"
             rows.append(f"{ROOT}/bots/{a} {ROOT}/bots/{b} {ROOT}/maps/{name}.map26a {replay} --statistics {stats} --json")
-            games.append({"map": name, "bot_side": "teamA" if side == 0 else "teamB", "stats": stats})
+            games.append({"map": name, "bot_side": "teamA" if side == 0 else "teamB", "stats": stats,
+                          "replay": replay})
     manifest = work / "manifest.txt"
     manifest.write_text("\n".join(rows) + "\n")
     subprocess.run(["cambc", "run-batch", str(manifest), "--jobs", str(jobs)], cwd=ROOT,
@@ -59,13 +61,24 @@ def run(bot: str, opponent: str, maps: list[str], jobs: int) -> list[dict]:
             )
         except (OSError, KeyError, ValueError) as error:
             result.update(won=False, error=str(error))
+        result.update(log_counts(game["replay"], game["bot_side"]))
         results.append(result)
     return results
 
 
+def log_counts(replay: Path, side: str) -> dict:
+    """Count our bot's error and out-of-fuel lines in the replay bundle's stdout."""
+    try:
+        with zipfile.ZipFile(replay) as bundle:
+            text = bundle.read(f"team-{side[-1].lower()}.stdout").decode("utf-8", "replace")
+    except (OSError, KeyError, zipfile.BadZipFile):
+        return {"errors": 0, "fuel_warnings": 0}
+    return {"errors": text.count("goldrush error"), "fuel_warnings": text.count("ran out of fuel")}
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("--bot", default="goldrush")
+    parser.add_argument("--bot", default="goldrush-cpp")
     parser.add_argument("--opponent", default="starter-python")
     parser.add_argument("--maps", nargs="*", default=None)
     parser.add_argument("--jobs", type=int, default=2)
@@ -85,6 +98,8 @@ def main() -> int:
               f"{r['rounds']:>6}{r['gems']:>7}{r['opp_gems']:>7}")
     wins = sum(r["won"] for r in results)
     print(f"\n{args.bot} vs {args.opponent}: {wins}/{len(results)} wins")
+    print(f"errors={sum(r['errors'] for r in results)} "
+          f"fuel_warnings={sum(r['fuel_warnings'] for r in results)}")
 
     out = ROOT / "results" / f"{args.bot}_vs_{args.opponent}.json"
     out.parent.mkdir(exist_ok=True)

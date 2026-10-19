@@ -1,6 +1,6 @@
 # goldrush strategy
 
-## Turn priorities (bot.py)
+## Turn priorities (`bot.cpp` / `bot.py`)
 
 Every champion, every turn, takes the first branch that applies:
 

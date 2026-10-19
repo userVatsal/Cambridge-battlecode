@@ -1,6 +1,24 @@
 # Changelog
 
-Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games).
+Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games)
+unless stated otherwise.
+
+## v5 — C++ port (19 Oct 2026)
+
+- `bots/goldrush-cpp`: file-for-file C++ port of Python v4. Python `bots/goldrush` kept as
+  reference and fallback. Frozen as `bots/goldrush-cpp-v5`.
+- First port used up to **91%** of the 100k C++ fuel budget (lanes; one turn ran out), versus
+  ~50% of the 2.5M Python budget. Cause: full-map bitboard temporaries every turn in camp
+  targeting (up to 102k fuel alone) and altar banking. Fix: check each group's 1-4 spawn tiles
+  directly, and build altar approach masks once. Worst case now **67%** (corners), 0 turns out
+  of fuel on all 9 maps.
+- vs starter: **17 / 18**, 15 of 18 games move-for-move identical to Python v4 (elkring ×2 and
+  interlock A differ slightly; same results). vs Python v4: **9 / 18** (equal strength).
+  `errors=0 fuel_warnings=0` over 36 games.
+- Bot now prints `goldrush warning: turn ran out of fuel` when a turn is cut short, and
+  `make eval` reports error and fuel-warning counts.
+- Added `CLAUDE.md` working rules (adapted from multica-ai/andrej-karpathy-skills) and a C++
+  build job in CI.
 
 ## v4 — no more stuck champions (18 Oct 2026)
 

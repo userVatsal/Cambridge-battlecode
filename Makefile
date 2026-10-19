@@ -1,7 +1,7 @@
 # Hidden Gold Clusters — Cambridge Battlecode 2026 Autumn
 # Run `make help` for the list of commands.
 
-BOT      ?= goldrush
+BOT      ?= goldrush-cpp
 OPPONENT ?= starter-python
 MAP      ?= expanse
 JOBS     ?= 2
@@ -10,10 +10,10 @@ JOBS     ?= 2
 
 help:
 	@echo "make setup                 install cambc, SDK, starters and the map pool"
-	@echo "make build    [BOT=]       compile a bot to WebAssembly"
+	@echo "make build    [BOT=]       compile a bot (default goldrush-cpp; BOT=goldrush for Python)"
 	@echo "make match    [BOT= OPPONENT= MAP=]  play one match and print the result"
 	@echo "make eval     [BOT= OPPONENT=]       play every map from both sides"
-	@echo "make snapshot V=3          freeze bots/goldrush as bots/goldrush-v3 (regression baseline)"
+	@echo "make snapshot V=6 [BOT=]   freeze a bot as bots/<bot>-v6 (regression baseline)"
 	@echo "make bundle   [BOT=]       build the upload ZIP in dist/"
 	@echo "make submit   [BOT=]       upload to the ladder (needs 'cambc login' first)"
 	@echo "make test / make lint      unit tests and style checks (no engine needed)"
@@ -35,7 +35,7 @@ eval:
 
 snapshot:
 	@test -n "$(V)" || (echo "usage: make snapshot V=<number>" && exit 1)
-	python tools/snapshot.py $(V)
+	python tools/snapshot.py $(V) $(BOT)
 
 bundle:
 	mkdir -p dist

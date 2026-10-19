@@ -22,6 +22,9 @@ two-team strategy game on a 30×30 to 100×100 grid.
 
 ## Sub-problems and how goldrush solves them
 
+File names below are the Python bot; the C++ bot mirrors them one-to-one
+(`draft.py` → `draft.cpp`, `config.py` → `config.h`, and so on).
+
 | # | Sub-problem | Starter bot | goldrush solution | Where |
 | --- | --- | --- | --- | --- |
 | 1 | Which champions to pick | random | Fixed priority list favouring tanky, splash and AoE farmers (Varg, Ryth, Stellar, Marcella…) | `draft.py`, `config.DRAFT_PRIORITY` |

@@ -6,7 +6,7 @@ on:
   pull_request:
 
 jobs:
-  checks:
+  python-checks:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -18,3 +18,16 @@ jobs:
         run: ruff check bots/goldrush tools tests
       - name: Unit tests
         run: pytest -q
+
+  cpp-build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install cambc
+      - name: Install SDK and toolchain
+        run: cambc init --yes .
+      - name: Build the submitted C++ bot
+        run: cambc build bots/goldrush-cpp

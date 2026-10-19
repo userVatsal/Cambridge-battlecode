@@ -2,66 +2,84 @@
 
 Team **Hidden Gold Clusters** (UK students) · Event [`cambc2026a`](https://2026a.battlecode.co.uk) · 12 Oct – 18 Nov 2026
 
-Our bot, **goldrush**, is written in Python and plays the Cambridge Battlecode MOBA-style
-farming game: draft champions, clear neutral camps, capture their gems and gold, and tribute
-gems at altars. First team to 1,000 tributed gems wins.
+Our bot, **goldrush**, plays the Cambridge Battlecode MOBA-style farming game: draft champions,
+clear neutral camps, capture their gems and gold, and tribute gems at altars. First team to
+1,000 tributed gems wins.
 
-| Version | vs official `starter-python` (9 maps × both sides) | Notes |
-| --- | --- | --- |
-| v1 | 14 / 18 | abilities, priority draft, item builds, safe banking |
-| v2 | 17 / 18 | removed recall-to-shop trips (big tempo gain) |
-| v3 | 17 / 18 | fixed two error types seen on the live ladder; zero errors |
-| v4 | **17 / 18** | fixed champions getting stuck oscillating on ladder maps |
+The submitted bot is **C++** (`bots/goldrush-cpp`). The original **Python** bot
+(`bots/goldrush`) is kept as the behavioural reference and fallback; the two make the same
+decisions, file for file.
+
+| Version | Language | vs official `starter-python` (9 maps × both sides) | Notes |
+| --- | --- | --- | --- |
+| v1 | Python | 14 / 18 | abilities, priority draft, item builds, safe banking |
+| v2 | Python | 17 / 18 | removed recall-to-shop trips (big tempo gain) |
+| v3 | Python | 17 / 18 | fixed two error types seen on the live ladder; zero errors |
+| v4 | Python | 17 / 18 | fixed champions getting stuck oscillating on ladder maps |
+| v5 | **C++** | **17 / 18** | port of v4; 9 / 18 head-to-head vs v4 (equal); 0 out-of-fuel turns |
 
 ## Quick start
 
 ```bash
-make setup                         # pip install cambc, SDK, starter bots, map pool
-make match                         # goldrush vs starter-python on expanse
-make eval                          # every map, both sides, prints a win table
-make bundle                        # dist/goldrush.zip, ready to upload
+make setup                         # pip install cambc, SDK, toolchains, starter bots, map pool
+make match                         # goldrush-cpp vs starter-python on expanse
+make eval                          # every map, both sides: win table + errors + fuel warnings
+make bundle                        # dist/goldrush-cpp.zip, ready to upload
 ```
 
-Without `make`: `pip install cambc && cambc init --yes . && cambc maps pull`, then
-`cambc run bots/goldrush bots/starter-python --map expanse`.
+Add `BOT=goldrush` to any command to use the Python bot instead.
 
 ## Submitting
 
-Either upload `dist/goldrush.zip` on the platform's **Submit bot** page (language: Python), or
+Upload `dist/goldrush-cpp.zip` on the platform's **Submit bot** page (language: **C++**), or
 `cambc login` once and then `make submit`.
 
 ## Repository layout
 
 ```
-bots/goldrush/src/      the bot that gets submitted
-  main.py               entry point: draft vs gameplay dispatch, crash guard per turn
-  config.py             every tunable number: draft order, item builds, thresholds
-  draft.py              deterministic priority draft
-  bot.py                per-turn decision loop (the "brain")
-  combat.py             targeting, basic attacks, abilities (damage, stun, reset, shield, heal)
-  economy.py            item purchases and gem banking at altars
-  farming.py            which camp groups to clear; monolith avoidance
-  navigation.py         shortest-path movement on the engine's native bitboards
-  rng.py                deterministic randomness (engine randomness is always zero)
-tools/run_matches.py    batch evaluator: all maps, both sides, JSON results
+bots/goldrush-cpp/src/  the bot that gets submitted (C++20, compiled to WebAssembly)
+  main.cpp              entry point: draft vs gameplay dispatch, crash guard, fuel warning
+  config.h              every tunable number: draft order, thresholds (item builds in economy.cpp)
+  state.h               per-champion memory kept between turns
+  draft.cpp             deterministic priority draft
+  bot.cpp               per-turn decision loop (the "brain")
+  combat.h/.cpp         targeting, basic attacks, abilities (damage, stun, reset, shield, heal)
+  economy.cpp           item builds, purchases and gem banking at altars
+  farming.cpp           which camp groups to clear; respawn memory; monolith avoidance
+  navigation.cpp        shortest-path movement on the engine's native bitboards
+bots/goldrush/src/      the same bot in Python (reference + fallback), one .py per .cpp
+bots/goldrush-vN/       frozen Python snapshots (regression opponents)
+bots/goldrush-cpp-vN/   frozen C++ snapshots (regression opponents)
+tools/run_matches.py    batch evaluator: all maps, both sides, JSON results, log checks
 tools/analyse_replays.py  summarise decoded ladder replays (see docs/MATCH_LOG.md)
-tools/snapshot.py       freeze the current bot as goldrush-vN for regression testing
-tests/                  unit tests for pure logic (run without the engine)
-docs/                   problem statement, strategy, development workflow
-.github/workflows/ci.yml  lint + tests on every push
+tools/snapshot.py       freeze a bot as <bot>-vN
+tests/                  unit tests for the Python bot's pure logic (no engine needed)
+docs/                   problem statement, strategy, ladder match log
+CLAUDE.md               working rules for AI agents and humans changing this repo
+.github/workflows/ci.yml  Python lint + tests, and a C++ build, on every push
 ```
 
-`sdk/`, `cmake/`, `maps/` and `bots/starter-*` are regenerated by `cambc init` and
-`cambc maps pull`, so they are not committed.
+The developer tools stay in Python: they run on your computer, not in the match, so their
+language does not affect the bot. `sdk/`, `cmake/`, `maps/` and `bots/starter-*` are
+regenerated by `cambc init` and `cambc maps pull`, so they are not committed.
+
+## Editors
+
+- **C++ bot:** [CLion](https://www.jetbrains.com/clion/). Run `make build` once, then in CLion
+  choose **File → Open**, pick `bots/goldrush-cpp/compile_commands.json` and **Open as Project**.
+- **Python bot and tools:** PyCharm, with the `.venv` interpreter and `bots/goldrush/src` and
+  `sdk/python` marked as Sources Root.
 
 ## How we improve the bot
 
+Follow [CLAUDE.md](CLAUDE.md). In short:
+
 1. `make snapshot V=<n>` to freeze the current version.
-2. Change **one** thing (usually a number in `config.py`).
-3. `make eval OPPONENT=goldrush-v<n>` — keep the change only if it wins.
-4. `make eval` against the starter to make sure nothing regressed, then commit and bundle.
+2. Change **one** thing (usually a number in `config.h`), in both C++ and Python.
+3. `make eval OPPONENT=goldrush-cpp-v<n>` — keep the change only if it wins ≥ 10 / 18.
+4. `make eval` against the starter: no drop in wins, `errors=0`, `fuel_warnings=0`.
+5. Log the result in [CHANGELOG.md](CHANGELOG.md), then `make bundle` and upload.
 
 Every ladder match group is analysed in [docs/MATCH_LOG.md](docs/MATCH_LOG.md).
-
-See [docs/PROBLEM_AND_SOLUTIONS.md](docs/PROBLEM_AND_SOLUTIONS.md),
-[docs/STRATEGY.md](docs/STRATEGY.md) and [CHANGELOG.md](CHANGELOG.md).
+See also [docs/PROBLEM_AND_SOLUTIONS.md](docs/PROBLEM_AND_SOLUTIONS.md) and
+[docs/STRATEGY.md](docs/STRATEGY.md).

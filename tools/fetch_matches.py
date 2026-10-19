@@ -43,11 +43,13 @@ def run_cambc(args: list[str]) -> subprocess.CompletedProcess:
         result = subprocess.run(["cambc", *args], capture_output=True, text=True)
         time.sleep(PAUSE_SECONDS)
         message = result.stderr + result.stdout
-        if result.returncode == 0 or "429" not in message:
+        transient = "429" in message or "Connection reset" in message or "timed out" in message.lower()
+        if result.returncode == 0 or not transient:
             return result
         match = re.search(r"retry after (\d+)", message)
         wait = int(match.group(1)) + 1 if match else 2 ** attempt
-        print(f"  platform busy, waiting {wait}s (attempt {attempt + 1}/{MAX_RETRIES})", flush=True)
+        print(f"  platform busy or connection dropped, waiting {wait}s (attempt {attempt + 1}/{MAX_RETRIES})",
+              flush=True)
         time.sleep(wait)
     return result
 
@@ -97,22 +99,29 @@ def top_teams(count: int) -> list[dict]:
     return teams[:count]
 
 
-def team_matches(team_id: str, refresh: bool) -> list[dict]:
+def involves(match: dict, team_id: str) -> bool:
+    """The list endpoint may return other teams' matches; keep only ones naming this team."""
+    return team_id in json.dumps(match)
+
+
+def team_matches(team_id: str, refresh: bool, limit: int) -> list[dict]:
     cached = DATA / "teams" / f"{team_id}.json"
     if cached.exists() and not refresh:
         return json.loads(cached.read_text())
-    matches, cursor = [], None
-    while True:
+    matches, cursor, seen = [], None, 0
+    while len(matches) < limit:
         args = ["matches", "list", "--team", team_id, "--limit", "100"]
         if cursor:
             args += ["--cursor", str(cursor)]
         payload = cambc_json(*args)
         page = first_list(payload)
-        matches += page
-        print(f"    {team_id[:8]}: {len(matches)} matches listed so far", flush=True)
+        seen += len(page)
+        matches += [m for m in page if involves(m, team_id)]
+        print(f"    {team_id[:8]}: {len(matches)} of its matches found ({seen} listed)", flush=True)
         cursor = next((payload.get(k) for k in CURSOR_KEYS if isinstance(payload, dict) and payload.get(k)), None)
-        if not page or not cursor:
+        if not page or not cursor or seen >= limit * 20:
             break
+    matches = matches[:limit]
     (DATA / "teams" / f"{team_id}.json").write_text(json.dumps(matches, indent=1))
     return matches
 
@@ -170,7 +179,7 @@ def cmd_fetch(args) -> int:
     print(f"Found {len(teams)} teams: " + ", ".join(str(t["name"]) for t in teams), flush=True)
     listings: dict[str, dict] = {}
     for n, team in enumerate(teams, 1):
-        matches = team_matches(team["id"], args.refresh)
+        matches = team_matches(team["id"], args.refresh, args.per_team)
         print(f"[{n}/{len(teams)}] {team['name']}: {len(matches)} matches", flush=True)
         for m in matches:
             match_id = pick(m, "id", "matchId", "match_id")
@@ -221,6 +230,7 @@ def main() -> int:
     who.add_argument("--team", help="a single team id")
     fetch.add_argument("--replays", action="store_true", help="also download replay bundles")
     fetch.add_argument("--refresh", action="store_true", help="re-download team match lists already saved")
+    fetch.add_argument("--per-team", type=int, default=300, help="newest matches to keep per team (default 300)")
     sub.add_parser("report")
     args = parser.parse_args()
     try:

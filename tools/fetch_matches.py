@@ -43,7 +43,8 @@ def run_cambc(args: list[str]) -> subprocess.CompletedProcess:
         result = subprocess.run(["cambc", *args], capture_output=True, text=True)
         time.sleep(PAUSE_SECONDS)
         message = result.stderr + result.stdout
-        transient = "429" in message or "Connection reset" in message or "timed out" in message.lower()
+        transient = any(code in message for code in ("429", "502", "503", "504", "Connection reset", "retry after")) \
+            or "timed out" in message.lower()
         if result.returncode == 0 or not transient:
             return result
         match = re.search(r"retry after (\d+)", message)

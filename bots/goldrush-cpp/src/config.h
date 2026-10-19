@@ -10,22 +10,23 @@
 
 namespace config {
 
-inline constexpr std::string_view version = "goldrush-cpp-v7";
+inline constexpr std::string_view version = "goldrush-cpp-v8";
 
-// Picked top-down, skipping anything we already own. Cassi+Issac first: one
-// pick gives two bodies (6 champions from 5 picks), as the top UK team does.
-// Then splash/AoE farmers. 10/18 vs v6, 18/18 vs starter.
+// Picked top-down, skipping anything we already own. The most common winning
+// set across 49 ladder losses to the top teams: Cassi+Issac (one pick, two
+// bodies), Stellar, Ren, Tavi, Ryth. Marcella was in 31 losing drafts, 1 win.
+// 11/18 vs v7, 18/18 vs starter.
 inline constexpr std::array draft_priority{
     cambc::champion_draft::cassi_and_issac,
-    cambc::champion_draft::varg,
     cambc::champion_draft::stellar,
     cambc::champion_draft::ren,
     cambc::champion_draft::tavi,
     cambc::champion_draft::ryth,
-    cambc::champion_draft::marcella,
-    cambc::champion_draft::vesper_vale,
+    cambc::champion_draft::varg,
     cambc::champion_draft::vendetta,
     cambc::champion_draft::prism,
+    cambc::champion_draft::vesper_vale,
+    cambc::champion_draft::marcella,
     cambc::champion_draft::willow,
 };
 

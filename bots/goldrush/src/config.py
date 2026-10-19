@@ -5,22 +5,22 @@ Draft = cambc.ChampionDraft
 Champ = cambc.ChampionType
 Item = cambc.ItemType
 
-VERSION = b"goldrush-v7"
+VERSION = b"goldrush-v8"
 
-# Picked top-down, skipping anything we already own. Cassi+Issac first: one
-# pick gives two bodies (6 champions from 5 picks), as the top UK team does.
-# Then splash/AoE farmers.
+# Picked top-down, skipping anything we already own. The most common winning
+# set across 49 ladder losses to the top teams: Cassi+Issac (one pick, two
+# bodies), Stellar, Ren, Tavi, Ryth. Marcella was in 31 losing drafts, 1 win.
 DRAFT_PRIORITY = (
     Draft.CASSI_AND_ISSAC,
-    Draft.VARG,
     Draft.STELLAR,
     Draft.REN,
     Draft.TAVI,
     Draft.RYTH,
-    Draft.MARCELLA,
-    Draft.VESPER_VALE,
+    Draft.VARG,
     Draft.VENDETTA,
     Draft.PRISM,
+    Draft.VESPER_VALE,
+    Draft.MARCELLA,
     Draft.WILLOW,
 )
 

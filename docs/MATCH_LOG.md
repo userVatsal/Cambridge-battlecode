@@ -7,6 +7,27 @@ How to regenerate the numbers: see [Analysing ladder replays](#analysing-ladder-
 
 ---
 
+## 19 Oct 2026, 14:30 — v5 vs 10 top teams (10 groups, 50 games) → ships **v8**
+
+We are the losing side in 49 of 50 (old draft Varg, Ryth, Stellar, Marcella, Tavi; all played
+with the v5 spawn-healing bug that v6 fixed). One win: `fa46338f` game 1, 1015–794.
+
+| What winners pick | Count in 49 winning drafts |
+| --- | --- |
+| Tavi | 66 picks* · Stellar 46 · Cassi+Issac 38 · Ren 31 · Ryth 31 · Varg 22 |
+| First pick | Cassi+Issac 25 · Ren 8 · Ryth 6 · Stellar 5 · Varg 4 |
+| Marcella | 1 winning draft vs 31 losing |
+
+*decoder counts some 4-pick maps oddly; ranking is what matters.
+
+- Winners carry more gems per hand-in (median 36–66 vs our 22–36), but copying that keeps
+  losing locally (60 gems: 9/18; 45 gems: 9/18).
+- Several 0–1000 losses on the 22-camp map again: we tribute nothing while they farm.
+
+**Changed (v8):** draft Cassi+Issac, Stellar, Ren, Tavi, Ryth first. 11/18 vs v7, 18/18 vs starter.
+
+---
+
 ## 19 Oct 2026, 14:15 — vs the top UK team (group `2f59cacd`, 5 games), bot v5 (C++) → ships **v7**
 
 ### Scoreboard: lost 0–5

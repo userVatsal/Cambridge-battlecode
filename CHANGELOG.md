@@ -3,6 +3,13 @@
 Results are `make eval` against the official `starter-python` (9 maps × 2 sides = 18 games)
 unless stated otherwise.
 
+## v8 — winners' draft (19 Oct 2026)
+
+- 50 ladder games of v5 vs 10 top teams (1 win): the most common winning draft was Cassi+Issac,
+  Stellar, Ren, Ryth, Tavi; Marcella appeared in 31 losing drafts and 1 winning one. New order:
+  Cassi+Issac, Stellar, Ren, Tavi, Ryth, … **11 / 18 vs v7**, **18 / 18** vs starter. Both bots.
+- Rejected: bank at 45 gems / altar within 6 — **9 / 18** vs v7.
+
 ## v7 — Cassi+Issac draft (19 Oct 2026)
 
 - Draft order now Cassi+Issac, Varg, Stellar, Ren, Tavi, … (copied from the top UK team: one

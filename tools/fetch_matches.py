@@ -47,7 +47,7 @@ def run_cambc(args: list[str]) -> subprocess.CompletedProcess:
             return result
         match = re.search(r"retry after (\d+)", message)
         wait = int(match.group(1)) + 1 if match else 2 ** attempt
-        print(f"  platform busy, waiting {wait}s (attempt {attempt + 1}/{MAX_RETRIES})")
+        print(f"  platform busy, waiting {wait}s (attempt {attempt + 1}/{MAX_RETRIES})", flush=True)
         time.sleep(wait)
     return result
 
@@ -109,6 +109,7 @@ def team_matches(team_id: str, refresh: bool) -> list[dict]:
         payload = cambc_json(*args)
         page = first_list(payload)
         matches += page
+        print(f"    {team_id[:8]}: {len(matches)} matches listed so far", flush=True)
         cursor = next((payload.get(k) for k in CURSOR_KEYS if isinstance(payload, dict) and payload.get(k)), None)
         if not page or not cursor:
             break
@@ -164,11 +165,13 @@ def index_row(match_id: str, listing: dict) -> dict | None:
 def cmd_fetch(args) -> int:
     for sub in ("teams", "summaries", "replays"):
         (DATA / sub).mkdir(parents=True, exist_ok=True)
+    print("Reading the ladder...", flush=True)
     teams = [{"id": args.team, "name": args.team}] if args.team else top_teams(args.top)
+    print(f"Found {len(teams)} teams: " + ", ".join(str(t["name"]) for t in teams), flush=True)
     listings: dict[str, dict] = {}
     for n, team in enumerate(teams, 1):
         matches = team_matches(team["id"], args.refresh)
-        print(f"[{n}/{len(teams)}] {team['name']}: {len(matches)} matches")
+        print(f"[{n}/{len(teams)}] {team['name']}: {len(matches)} matches", flush=True)
         for m in matches:
             match_id = pick(m, "id", "matchId", "match_id")
             if match_id:
@@ -178,8 +181,8 @@ def cmd_fetch(args) -> int:
         new += download_summary(match_id)
         if args.replays:
             download_replay(match_id)
-        if n % 25 == 0:
-            print(f"  {n}/{len(listings)} matches processed ({new} new summaries)")
+        if n % 10 == 0 or n == len(listings):
+            print(f"  {n}/{len(listings)} match summaries done ({new} new)", flush=True)
     rows = [r for r in (index_row(mid, lst) for mid, lst in listings.items()) if r]
     (DATA / "index.json").write_text(json.dumps(rows, indent=1))
     print(f"\n{len(listings)} matches, {new} new summaries, index of {len(rows)} -> data/index.json")

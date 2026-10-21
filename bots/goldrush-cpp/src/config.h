@@ -10,7 +10,7 @@
 
 namespace config {
 
-inline constexpr std::string_view version = "goldrush-cpp-v9";
+inline constexpr std::string_view version = "goldrush-cpp-v10";
 
 // Picked top-down, skipping anything we already own. The most common winning
 // set across 49 ladder losses to the top teams: Cassi+Issac (one pick, two
@@ -68,5 +68,18 @@ inline constexpr std::size_t stuck_window = 12;
 inline constexpr std::size_t stuck_max_tiles = 3;
 inline constexpr std::uint32_t stuck_block_rounds = 40;
 inline constexpr int stuck_block_radius = 10;
+
+// Planner (v10): score = (gems + gold_weight * gold) / rounds, where rounds is
+// travel (or respawn wait) + clearing time + capture time.
+// Gold is worth this many gems: it only matters through shopping.
+inline constexpr float plan_gold_weight = 0.1f;
+// Wolves, elks and monoliths hit back; their health counts this much more.
+inline constexpr float plan_hits_back_cost = 1.5f;
+// Keep the current target unless another scores this much better.
+inline constexpr float plan_commit_bonus = 1.3f;
+// Score multiplier for a group a teammate has already claimed.
+inline constexpr float plan_claimed_factor = 0.5f;
+// Wait this many tiles from a respawning target (never on its spawn tiles).
+inline constexpr int plan_wait_radius = 2;
 
 }  // namespace config

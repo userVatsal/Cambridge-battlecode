@@ -7,5 +7,6 @@ public:
     void play_turn();
 
 private:
+    bool guards(cambc::champion& me);
     ChampionState state_;
 };

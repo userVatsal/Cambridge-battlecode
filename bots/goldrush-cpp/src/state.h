@@ -21,6 +21,8 @@ struct ChampionState {
     std::optional<std::vector<CampGroupInfo>> camp_layout;
     // Camp group index -> first round it is worth visiting again.
     std::unordered_map<std::size_t, std::uint32_t> unavailable_until;
+    // Camp group the planner is working on (index into camp_layout).
+    std::optional<std::size_t> target;
     // Position after each turn we chose to walk, newest last.
     std::vector<cambc::vec2> recent_moves;
 };

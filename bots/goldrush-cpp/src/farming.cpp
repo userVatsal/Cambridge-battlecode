@@ -45,30 +45,22 @@ static void ensure_layout(ChampionState& state) {
 // even after it leaves vision. Forgetting it as soon as it was out of sight
 // made champions oscillate on the vision edge for the rest of the match — the
 // ladder games with zero gems tributed.
-cambc::bitboard camp_goals(ChampionState& state) {
-    auto& me = cambc::self();
+void refresh(ChampionState& state) {
     ensure_layout(state);
     const auto now = cambc::round_number();
-    const bool allow_monolith = team_ready_for_monolith(me);
     const auto visible = cambc::vision::visible_tiles();
-    cambc::bitboard goals;
     const auto& layout = *state.camp_layout;
     for (std::size_t index = 0; index < layout.size(); ++index) {
         const auto& info = layout[index];
-        if (info.monolith && !allow_monolith) continue;
-        if (std::any_of(info.tile_list.begin(), info.tile_list.end(),
-                        [&](cambc::vec2 tile) { return visible.is_set(tile); })) {
-            const auto wait = respawn_wait(info.group);
-            if (wait)
-                state.unavailable_until[index] = now + wait;
-            else
-                state.unavailable_until.erase(index);
-        }
-        const auto blocked = state.unavailable_until.find(index);
-        if (blocked != state.unavailable_until.end() && blocked->second > now) continue;
-        goals |= info.tiles;
+        if (std::none_of(info.tile_list.begin(), info.tile_list.end(),
+                         [&](cambc::vec2 tile) { return visible.is_set(tile); }))
+            continue;
+        const auto wait = respawn_wait(info.group);
+        if (wait)
+            state.unavailable_until[index] = now + wait;
+        else
+            state.unavailable_until.erase(index);
     }
-    return goals;
 }
 
 void block_nearby_groups(ChampionState& state, std::uint32_t rounds) {
@@ -85,18 +77,6 @@ void block_nearby_groups(ChampionState& state, std::uint32_t rounds) {
         auto& entry = state.unavailable_until[index];
         entry = std::max(entry, until);
     }
-}
-
-bool advance_to_camps(ChampionState& state) {
-    auto goals = camp_goals(state);
-    if (goals.is_empty() && !state.unavailable_until.empty() && state.camp_layout) {
-        // Everything known is respawning: pre-position on whichever comes back first.
-        const auto soonest = std::min_element(state.unavailable_until.begin(), state.unavailable_until.end(),
-            [](const auto& a, const auto& b) { return a.second < b.second; });
-        goals = (*state.camp_layout)[soonest->first].tiles;
-    }
-    if (goals.is_empty()) return false;
-    return navigation::move_towards_closest(goals);
 }
 
 }  // namespace farming

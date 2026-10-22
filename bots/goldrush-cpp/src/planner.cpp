@@ -26,8 +26,32 @@ float camp_health(camp_type type) {
     return 1000.0f;
 }
 
+float camp_strength(camp_type type) {
+    switch (type) {
+        case camp_type::wolf: return 20.0f;
+        case camp_type::elk: return 60.0f;
+        case camp_type::gem_cluster:
+        case camp_type::gold_cluster: return 0.0f;
+        case camp_type::monolith: return 200.0f;
+        case camp_type::golem: return 120.0f;
+    }
+    return 0.0f;
+}
+
 bool hits_back(camp_type type) {
-    return type != camp_type::gem_cluster && type != camp_type::gold_cluster;
+    return camp_strength(type) > 0.0f;
+}
+
+// Damage the group deals while `fighters` champions of our strength clear it.
+// Raw strength overstates it about sevenfold (armour, heals, recalls): on rows
+// v9 took 0.14 camp damage per point it dealt, so the result is scaled down.
+float expected_damage(const CampGroupInfo& info, float strength, float fighters) {
+    float health = 0.0f, hitting = 0.0f;
+    for (const auto& camp : info.group) {
+        health += camp_health(camp.kind());
+        hitting += camp_strength(camp.kind());
+    }
+    return config::plan_damage_scale * hitting * health / (strength * fighters) / fighters;
 }
 
 // Terrain that never changes; camps and champions move or die, so they are left out.
@@ -80,7 +104,14 @@ std::optional<std::size_t> choose_target(ChampionState& state) {
     const auto& layout = *state.camp_layout;
     if (layout.empty()) return std::nullopt;
 
+    // The full-map distance search is the expensive part of a turn: keep the
+    // current target for plan_interval rounds unless it went on respawn.
     const auto now = cambc::round_number();
+    if (state.target && now < state.next_plan_round) {
+        const auto blocked = state.unavailable_until.find(*state.target);
+        if (blocked == state.unavailable_until.end() || blocked->second <= now) return state.target;
+    }
+    state.next_plan_round = now + config::plan_interval;
     const bool allow_monolith = farming::team_ready_for_monolith(me);
     const float strength = std::max(1.0f, me.strength());
     const auto claims = teammate_claims(layout.size());
@@ -112,13 +143,27 @@ std::optional<std::size_t> choose_target(ChampionState& state) {
 
         const float value = static_cast<float>(info.group.gem_value())
                           + config::plan_gold_weight * static_cast<float>(info.group.gold_value());
-        const float rounds = start + clear_rounds(info, strength) + static_cast<float>(cambc::constants::capture_time);
+        // A teammate who claimed a group that hits back will fight it with us.
+        // Only one helper counts: counting all of them pulled the whole team
+        // onto one elk group for 400 rounds on monolith.
+        const bool dangerous = std::any_of(info.group.begin(), info.group.end(),
+                                           [](const cambc::camp& camp) { return hits_back(camp.kind()); });
+        const int helpers = dangerous ? std::min(claims[index], config::plan_max_helpers) : 0;
+        if (dangerous && claims[index] > config::plan_max_helpers) continue;  // already crowded
+        const float fighters = 1.0f + static_cast<float>(helpers);
+
+        // Reflection 1 — survivability: never pick a group that would kill us
+        // before it dies (v10 first draft died 70 times on elkring soloing elks).
+        if (expected_damage(info, strength, fighters) > me.health() * config::plan_max_damage_fraction) continue;
+
+        const float rounds = start + clear_rounds(info, strength) / fighters
+                           + static_cast<float>(cambc::constants::capture_time);
         float score = value / rounds;
 
-        // Reflection: stay committed unless something is clearly better, and
-        // spread out rather than queue behind a teammate on the same camp.
+        // Reflection 2 — stay committed unless something is clearly better, and
+        // spread out over harmless clusters rather than queue behind a teammate.
         if (state.target && *state.target == index) score *= config::plan_commit_bonus;
-        if (claims[index] > 0) score *= config::plan_claimed_factor;
+        if (!dangerous && claims[index] > 0) score *= config::plan_claimed_factor;
 
         if (score > best_score) {
             best = index;

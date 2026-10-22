@@ -72,13 +72,21 @@ inline constexpr int stuck_block_radius = 10;
 // Planner (v10): score = (gems + gold_weight * gold) / rounds, where rounds is
 // travel (or respawn wait) + clearing time + capture time.
 // Gold is worth this many gems: it only matters through shopping.
-inline constexpr float plan_gold_weight = 0.1f;
+inline constexpr float plan_gold_weight = 0.15f;
 // Wolves, elks and monoliths hit back; their health counts this much more.
 inline constexpr float plan_hits_back_cost = 1.5f;
 // Keep the current target unless another scores this much better.
 inline constexpr float plan_commit_bonus = 1.3f;
 // Score multiplier for a group a teammate has already claimed.
 inline constexpr float plan_claimed_factor = 0.5f;
+// Skip a group whose expected damage to us exceeds this fraction of our health.
+inline constexpr float plan_max_damage_fraction = 0.8f;
+// Calibration of the camp-damage estimate (measured from v9 replays).
+inline constexpr float plan_damage_scale = 0.07f;
+// Re-score all groups every this many rounds (or when the target respawns).
+inline constexpr std::uint32_t plan_interval = 5;
+// Teammates that may share a group that hits back (more than this: skip it).
+inline constexpr int plan_max_helpers = 1;
 // Wait this many tiles from a respawning target (never on its spawn tiles).
 inline constexpr int plan_wait_radius = 2;
 
